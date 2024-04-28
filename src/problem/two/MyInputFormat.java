@@ -1,4 +1,4 @@
-package problem2;
+package problem.two;
 
 import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 import org.apache.hadoop.mapreduce.RecordReader;

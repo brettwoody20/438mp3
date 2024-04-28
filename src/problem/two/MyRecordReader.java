@@ -1,4 +1,4 @@
-package problem2;
+package problem.two;
 
 import java.io.BufferedReader;
 import org.apache.hadoop.mapreduce.RecordReader;
