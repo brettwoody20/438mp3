@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+import javax.naming.Context;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -20,26 +22,25 @@ public class TimeOfDayMostOftenTweets {
         private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-            String[] lines = value.toString().split("\n");
-            if (lines.length >= 4) {
+            String line = value.toString();
+            if (line.charAt(0) == 'T') {
                 try {
-                    // Parse timestamp
-                    String timestampString = lines[0].split(" ")[1];
+                    String timestampString = line.split("T ")[1];
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(dateFormat.parse(timestampString));
                     int hour = cal.get(Calendar.HOUR_OF_DAY);
 
-                    // Emit hour as key and value 1
                     context.write(new Text(String.valueOf(hour)), new IntWritable(1));
                 } catch (ParseException e) {
-                    // Ignore invalid timestamps
+
                 }
             }
         }
     }
 
     public static class TweetReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
-        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+        public void reduce(Text key, Iterable<IntWritable> values, Context context)
+                throws IOException, InterruptedException {
             int sum = 0;
             for (IntWritable value : values) {
                 sum += value.get();
@@ -61,4 +62,3 @@ public class TimeOfDayMostOftenTweets {
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 }
-
